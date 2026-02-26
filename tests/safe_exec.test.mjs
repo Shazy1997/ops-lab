@@ -11,12 +11,10 @@ const SAFE_EXEC = resolve(REPO_ROOT, 'scripts/safe_exec.sh');
 // Check if we're in Docker (no git, limited shell)
 const isDocker = !existsSync(resolve(REPO_ROOT, '.git'));
 
-describe('safe_exec.sh', () => {
-  // Skip all tests in Docker since shell scripts need proper environment
-  if (isDocker) {
-    it.skip('skipped in Docker environment', () => {});
-    return;
-  }
+// Use describe.skip when in Docker
+const describeOrSkip = isDocker ? describe.skip : describe;
+
+describeOrSkip('safe_exec.sh', () => {
   it('runs non-sensitive commands directly without approval', () => {
     const result = execSync(
       `bash ${SAFE_EXEC} --reason "Test safe command" -- echo SAFE_TEST_OUTPUT`,

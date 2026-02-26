@@ -12,12 +12,10 @@ const LOG_FILE = resolve(REPO_ROOT, 'notes/approvals.log');
 // Check if we're in Docker (no git, limited shell)
 const isDocker = !existsSync(resolve(REPO_ROOT, '.git'));
 
-describe('approve.sh', () => {
-  // Skip all tests in Docker since shell scripts need proper environment
-  if (isDocker) {
-    it.skip('skipped in Docker environment', () => {});
-    return;
-  }
+// Use describe.skip when in Docker
+const describeOrSkip = isDocker ? describe.skip : describe;
+
+describeOrSkip('approve.sh', () => {
   let originalLogContent = '';
 
   beforeEach(() => {

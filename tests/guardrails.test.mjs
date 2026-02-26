@@ -6,13 +6,11 @@ import { resolve } from 'node:path';
 // Check if we're in a git repo (not available in Docker)
 const isGitRepo = existsSync(resolve(process.cwd(), '.git'));
 
-describe('guardrails-check', () => {
-  it('passes on a clean repo', () => {
-    if (!isGitRepo) {
-      console.log('Skipping: not in a git repository (Docker)');
-      return;
-    }
+// Use describe.skip to skip the entire suite when not in git repo
+const describeOrSkip = isGitRepo ? describe : describe.skip;
 
+describeOrSkip('guardrails-check', () => {
+  it('passes on a clean repo', () => {
     const result = execSync('node scripts/guardrails-check.mjs', {
       encoding: 'utf-8',
       cwd: process.cwd(),
