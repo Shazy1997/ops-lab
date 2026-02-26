@@ -7,22 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
 const SAFE_EXEC = resolve(REPO_ROOT, 'scripts/safe_exec.sh');
 
-// Check if bash is available (not available in node:alpine)
-function isBashAvailable() {
-  try {
-    execSync('bash --version', { stdio: 'ignore' });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-const hasBash = isBashAvailable();
-
-// Use describe.skip when bash is not available
-const describeOrSkip = hasBash ? describe : describe.skip;
-
-describeOrSkip('safe_exec.sh', () => {
+describe('safe_exec.sh', () => {
   it('runs non-sensitive commands directly without approval', () => {
     const result = execSync(
       `bash ${SAFE_EXEC} --reason "Test safe command" -- echo SAFE_TEST_OUTPUT`,

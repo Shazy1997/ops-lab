@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { execSync, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,22 +9,7 @@ const REPO_ROOT = resolve(__dirname, '..');
 const APPROVE_SCRIPT = resolve(REPO_ROOT, 'scripts/approve.sh');
 const LOG_FILE = resolve(REPO_ROOT, 'notes/approvals.log');
 
-// Check if bash is available (not available in node:alpine)
-function isBashAvailable() {
-  try {
-    execSync('bash --version', { stdio: 'ignore' });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-const hasBash = isBashAvailable();
-
-// Use describe.skip when bash is not available
-const describeOrSkip = hasBash ? describe : describe.skip;
-
-describeOrSkip('approve.sh', () => {
+describe('approve.sh', () => {
   let originalLogContent = '';
 
   beforeEach(() => {
