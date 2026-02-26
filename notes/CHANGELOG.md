@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-02-26T08:17Z — Smoke Test: AI Review Workflow
+
+- Added smoke test line to README.md to validate the full review loop
+
 ## 2026-02-26T08:05Z — Branch Protection + Touch List Enforcement
 
 - Enabled branch protection on `main`: require PR, require `Guardrails Check` +
