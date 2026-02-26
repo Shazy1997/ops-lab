@@ -115,7 +115,12 @@ function checkAbsolutePaths(files) {
 
     const lines = content.split('\n');
     for (let i = 0; i < lines.length; i++) {
-      if (ABSOLUTE_PATH_RE.test(lines[i])) {
+      const line = lines[i];
+      // Skip shebangs, comments, and regex/pattern definitions
+      if (i === 0 && line.startsWith('#!')) continue;
+      if (/^\s*(\/\/|#|\*|\/)/.test(line)) continue;
+      if (/RegExp|new RegExp|RE\s*=/.test(line)) continue;
+      if (ABSOLUTE_PATH_RE.test(line)) {
         violations.push(
           `ABS_PATH: "${f}:${i + 1}" contains what looks like an absolute path.`
         );

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-02-26T08:05Z — Branch Protection + Touch List Enforcement
+
+- Enabled branch protection on `main`: require PR, require `Guardrails Check` +
+  `Build & Test` status checks, enforce for admins, require conversation resolution
+- Added Touch List enforcement step in CI: PRs without `## Touch List` or
+  `## Files changed` in the description will fail the guardrails job
+- Fixed false positives in guardrails-check.mjs (shebangs, comments, regex defs)
+
 ## 2026-02-26T07:54Z — Guardrails Enforcement + AI Review Loop
 
 - Added `scripts/guardrails-check.mjs` — enforces containment, no duplicates,

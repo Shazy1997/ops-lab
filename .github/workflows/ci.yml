@@ -10,6 +10,9 @@ jobs:
   guardrails:
     name: Guardrails Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,6 +26,19 @@ jobs:
 
       - name: Run guardrails
         run: node scripts/guardrails-check.mjs
+
+      - name: Enforce Touch List in PR description
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body -q .body)
+          if ! echo "$PR_BODY" | grep -qiE '^##\s*(Touch List|Files changed)'; then
+            echo "::error::PR description is missing a '## Touch List' or '## Files changed' section."
+            echo "Every PR must list files changed and why. See AGENT_RULES.md rule #6."
+            exit 1
+          fi
+          echo "✓ Touch List found in PR description."
 
   build-and-test:
     name: Build & Test
