@@ -33,6 +33,20 @@ must follow them at all times.
 - No destructive shell commands (`rm -rf`, `truncate`, `dd`, etc.) unless
   **explicitly requested** by the operator.
 
+## 6. Touch List Required on Every PR
+
+Every PR description **must** include a "Touch List" section:
+
+```
+## Touch List
+- `src/foo.mjs` — added retry logic for API calls
+- `tests/foo.test.mjs` — new tests for retry behavior
+- `notes/CHANGELOG.md` — logged the change
+```
+
+The agent must list **every file changed** and a one-line reason **why**.
+This is enforced by the AI reviewer and should be present before requesting review.
+
 ---
 
 # Decision Discipline — Pre-Flight Checklist

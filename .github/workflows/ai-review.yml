@@ -1,0 +1,43 @@
+name: AI PR Review
+
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ai-review:
+    name: Warp Agent Review
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Review PR with Warp Agent
+        uses: warpdotdev/warp-agent-action@main
+        with:
+          warp_api_key: ${{ secrets.WARP_API_KEY }}
+          prompt: |
+            You are a strict code reviewer for the ops-lab repository.
+            Your job is to enforce the rules in AGENT_RULES.md.
+
+            1. Read AGENT_RULES.md to understand the constraints.
+            2. Use `git diff origin/main...HEAD` to see what changed.
+            3. Check for these violations and flag each one:
+               - Files created outside allowed directories (src/, tests/, scripts/, notes/, .github/)
+               - Duplicate-ish filenames (*_v2, *copy*, *final*, *backup*, new_*)
+               - Absolute paths anywhere in source or config files
+               - Missing notes/CHANGELOG.md update
+               - Missing "Touch List" (files changed + why) in the PR description
+            4. Review code quality: style, correctness, security.
+            5. Post your findings as a PR review using `gh`.
+               - If there are violations: REQUEST_CHANGES
+               - If clean: APPROVE with a brief summary
+            6. For small fixable issues, post inline code suggestions.

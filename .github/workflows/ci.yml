@@ -7,9 +7,27 @@ on:
     branches: [main]
 
 jobs:
-  build-and-test:
+  guardrails:
+    name: Guardrails Check
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run guardrails
+        run: node scripts/guardrails-check.mjs
+
+  build-and-test:
+    name: Build & Test
+    needs: guardrails
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,7 +37,3 @@ jobs:
 
       - name: Run tests
         run: docker compose run --rm app npm test
-
-      - name: Fail on errors
-        if: failure()
-        run: exit 1

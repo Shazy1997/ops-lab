@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Sandboxed, guardrailed dev environment for AI-assisted operations",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "guardrails": "node scripts/guardrails-check.mjs"
   },
   "devDependencies": {
     "jest": "^29.7.0",
