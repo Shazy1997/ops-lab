@@ -28,6 +28,7 @@ process.chdir(REPO_ROOT);
 // ---------------------------------------------------------------------------
 
 const ALLOWED_TOP_LEVEL = new Set([
+  '.dockerignore',
   '.github',
   '.gitignore',
   'AGENT_RULES.md',

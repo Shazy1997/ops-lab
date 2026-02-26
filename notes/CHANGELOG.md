@@ -5,6 +5,7 @@
 - Added smoke test line to README.md to validate the full review loop
 - Fixed Dockerfile: install git in Alpine so guardrails test can run
 - Added .dockerignore: preserve .git directory for guardrails-check in tests
+- Updated guardrails-check: allow .dockerignore in top-level files
 
 ## 2026-02-26T08:05Z — Branch Protection + Touch List Enforcement
 
