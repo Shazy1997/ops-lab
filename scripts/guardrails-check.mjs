@@ -28,9 +28,11 @@ process.chdir(REPO_ROOT);
 // ---------------------------------------------------------------------------
 
 const ALLOWED_TOP_LEVEL = new Set([
+  '.dockerignore',
   '.github',
   '.gitignore',
   'AGENT_RULES.md',
+  'docs',
   'Dockerfile',
   'README.md',
   'docker-compose.yml',
@@ -39,6 +41,7 @@ const ALLOWED_TOP_LEVEL = new Set([
   'package-lock.json',
   'package.json',
   'scripts',
+  'security',
   'src',
   'tests',
 ]);
@@ -101,8 +104,18 @@ function checkDuplicateNames(files) {
   }
 }
 
+// Files that document paths and shouldn't trigger ABS_PATH violations
+const ABS_PATH_ALLOWLIST = new Set([
+  'security/DENYLIST.md',
+  'scripts/safe_exec.sh',
+  'docs/security/permission-gates-usage.md',
+]);
+
 function checkAbsolutePaths(files) {
   for (const f of files) {
+    // Skip files that document paths
+    if (ABS_PATH_ALLOWLIST.has(f)) continue;
+
     const ext = f.slice(f.lastIndexOf('.'));
     if (!SCANNABLE_EXTENSIONS.has(ext)) continue;
 
@@ -147,6 +160,66 @@ function checkChangelogUpdated() {
 }
 
 // ---------------------------------------------------------------------------
+// Safety checks (Permission Gates enforcement)
+// ---------------------------------------------------------------------------
+
+// Files allowed to contain direct ssh/scp/rsync calls
+const SSH_ALLOWLIST = new Set(['scripts/safe_ssh.sh']);
+
+// Files allowed to contain 'sudo' (checkers/docs/tests only)
+const SUDO_ALLOWLIST = new Set([
+  'scripts/guardrails-check.mjs',
+  'security/DENYLIST.md',
+  'tests/safe_exec.test.mjs',  // tests blocking of sudo
+]);
+
+function checkForbiddenPatterns(files) {
+  for (const f of files) {
+    const ext = f.slice(f.lastIndexOf('.'));
+    // Only scan shell scripts and JS/TS files
+    if (!['.sh', '.mjs', '.js', '.ts'].includes(ext)) continue;
+
+    let content;
+    try {
+      content = readFileSync(f, 'utf-8');
+    } catch {
+      continue;
+    }
+
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const lineNum = i + 1;
+
+      // Skip comments
+      if (/^\s*(#|\/\/)/.test(line)) continue;
+
+      // Check for direct ssh/scp/rsync (not via safe_ssh.sh)
+      if (!SSH_ALLOWLIST.has(f)) {
+        // Match standalone ssh/scp/rsync commands (word boundary)
+        if (/\b(ssh|scp|rsync)\s+[^|]/.test(line)) {
+          // Ignore if it's calling safe_ssh.sh
+          if (!line.includes('safe_ssh.sh')) {
+            violations.push(
+              `SAFETY: "${f}:${lineNum}" contains direct ssh/scp/rsync. Use scripts/safe_ssh.sh instead.`
+            );
+          }
+        }
+      }
+
+      // Check for sudo
+      if (!SUDO_ALLOWLIST.has(f)) {
+        if (/\bsudo\b/.test(line)) {
+          violations.push(
+            `SAFETY: "${f}:${lineNum}" contains 'sudo'. Sudo is forbidden in repo scripts.`
+          );
+        }
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Run
 // ---------------------------------------------------------------------------
 
@@ -156,6 +229,7 @@ checkAllowedDirectories(files);
 checkDuplicateNames(files);
 checkAbsolutePaths(files);
 checkChangelogUpdated();
+checkForbiddenPatterns(files);
 
 if (violations.length > 0) {
   console.error('\n🚨 Guardrails violations found:\n');

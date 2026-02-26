@@ -3,8 +3,6 @@ import { execSync } from 'node:child_process';
 
 describe('guardrails-check', () => {
   it('passes on a clean repo', () => {
-    // Run the guardrails script from the repo root.
-    // It should exit 0 on the current clean state.
     const result = execSync('node scripts/guardrails-check.mjs', {
       encoding: 'utf-8',
       cwd: process.cwd(),

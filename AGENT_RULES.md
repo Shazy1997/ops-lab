@@ -47,6 +47,31 @@ Every PR description **must** include a "Touch List" section:
 The agent must list **every file changed** and a one-line reason **why**.
 This is enforced by the AI reviewer and should be present before requesting review.
 
+## 7. Permission Gates (Tier 3)
+
+Sensitive and destructive operations require explicit approval.
+
+### Local Command Execution
+- Any sensitive local command must go through `scripts/safe_exec.sh`
+- Usage: `scripts/safe_exec.sh --reason "<why>" -- <cmd> [args...]`
+- Denylist patterns (see `security/DENYLIST.md`) are hard-blocked unless
+  `ALLOW_DENYLIST_OVERRIDE=1` is set AND the operator still approves
+
+### Remote Operations (SSH)
+- All SSH/SCP/rsync operations must go through `scripts/safe_ssh.sh`
+- Usage: `scripts/safe_ssh.sh --reason "<why>" --host "<user@host>" -- "<cmd>"`
+- Direct `ssh`, `scp`, `rsync` calls are **forbidden** in repo scripts
+  (except inside `safe_ssh.sh` itself)
+
+### Forbidden Patterns in Scripts
+- `sudo` — blocked entirely (no sudo in repo scripts)
+- Direct `ssh`, `scp`, `rsync` — must use `safe_ssh.sh` wrapper
+- Denylist patterns — blocked unless override + approval
+
+### Approval Logging
+- All approval requests (approved or denied) are logged to `notes/approvals.log`
+- Format: `timestamp | user@host | cwd | APPROVED|DENIED | reason | command`
+
 ---
 
 # Decision Discipline — Pre-Flight Checklist
