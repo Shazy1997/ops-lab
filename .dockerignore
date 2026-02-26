@@ -1,6 +1,3 @@
 node_modules
 coverage
 *.log
-
-# DO NOT ignore .git — guardrails-check needs it
-!.git
