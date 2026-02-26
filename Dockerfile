@@ -12,5 +12,8 @@ RUN npm ci --ignore-scripts
 # Copy source
 COPY . .
 
+# Fix git ownership issue (Docker copies files as root)
+RUN git config --global --add safe.directory /app
+
 # Default: run tests
 CMD ["npm", "test"]
