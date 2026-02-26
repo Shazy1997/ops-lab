@@ -36,3 +36,7 @@ agents (human and AI) must follow when working in this repo.
 This repo is designed to be mounted as the sole workspace for containerized AI
 agents (e.g. OpenClaw). The agent container mounts only this directory and
 nothing else.
+
+---
+
+AI review smoke test.
