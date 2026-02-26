@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-02-26T08:17Z — Smoke Test: AI Review Workflow
+
+- Added smoke test line to README.md to validate the full review loop
+- Fixed Dockerfile: install git in Alpine so guardrails test can run
+- Added .dockerignore: exclude node_modules, coverage, logs from Docker build
+- Updated guardrails-check: allow .dockerignore in top-level files
+- Fixed guardrails test: skip when not in a git repo (e.g. inside Docker)
+
 ## 2026-02-26T08:05Z — Branch Protection + Touch List Enforcement
 
 - Enabled branch protection on `main`: require PR, require `Guardrails Check` +
