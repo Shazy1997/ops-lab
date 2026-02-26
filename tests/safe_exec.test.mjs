@@ -1,6 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
 import { execSync, spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,11 +7,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
 const SAFE_EXEC = resolve(REPO_ROOT, 'scripts/safe_exec.sh');
 
-// Check if we're in Docker (no git, limited shell)
-const isDocker = !existsSync(resolve(REPO_ROOT, '.git'));
+// Check if bash is available (not available in node:alpine)
+function isBashAvailable() {
+  try {
+    execSync('bash --version', { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-// Use describe.skip when in Docker
-const describeOrSkip = isDocker ? describe.skip : describe;
+const hasBash = isBashAvailable();
+
+// Use describe.skip when bash is not available
+const describeOrSkip = hasBash ? describe : describe.skip;
 
 describeOrSkip('safe_exec.sh', () => {
   it('runs non-sensitive commands directly without approval', () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { execSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,11 +9,20 @@ const REPO_ROOT = resolve(__dirname, '..');
 const APPROVE_SCRIPT = resolve(REPO_ROOT, 'scripts/approve.sh');
 const LOG_FILE = resolve(REPO_ROOT, 'notes/approvals.log');
 
-// Check if we're in Docker (no git, limited shell)
-const isDocker = !existsSync(resolve(REPO_ROOT, '.git'));
+// Check if bash is available (not available in node:alpine)
+function isBashAvailable() {
+  try {
+    execSync('bash --version', { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-// Use describe.skip when in Docker
-const describeOrSkip = isDocker ? describe.skip : describe;
+const hasBash = isBashAvailable();
+
+// Use describe.skip when bash is not available
+const describeOrSkip = hasBash ? describe : describe.skip;
 
 describeOrSkip('approve.sh', () => {
   let originalLogContent = '';

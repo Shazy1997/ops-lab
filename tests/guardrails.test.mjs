@@ -1,13 +1,20 @@
 import { describe, it, expect } from '@jest/globals';
 import { execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
 
-// Check if we're in a git repo (not available in Docker)
-const isGitRepo = existsSync(resolve(process.cwd(), '.git'));
+// Check if git binary is available (not available in node:alpine Docker image)
+function isGitAvailable() {
+  try {
+    execSync('git --version', { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-// Use describe.skip to skip the entire suite when not in git repo
-const describeOrSkip = isGitRepo ? describe : describe.skip;
+const hasGit = isGitAvailable();
+
+// Use describe.skip when git binary is not available
+const describeOrSkip = hasGit ? describe : describe.skip;
 
 describeOrSkip('guardrails-check', () => {
   it('passes on a clean repo', () => {
