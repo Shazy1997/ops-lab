@@ -108,6 +108,7 @@ function checkDuplicateNames(files) {
 const ABS_PATH_ALLOWLIST = new Set([
   'security/DENYLIST.md',
   'scripts/safe_exec.sh',
+  'docs/security/permission-gates-usage.md',
 ]);
 
 function checkAbsolutePaths(files) {
