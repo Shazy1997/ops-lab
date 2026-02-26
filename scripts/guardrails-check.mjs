@@ -104,8 +104,17 @@ function checkDuplicateNames(files) {
   }
 }
 
+// Files that document paths and shouldn't trigger ABS_PATH violations
+const ABS_PATH_ALLOWLIST = new Set([
+  'security/DENYLIST.md',
+  'scripts/safe_exec.sh',
+]);
+
 function checkAbsolutePaths(files) {
   for (const f of files) {
+    // Skip files that document paths
+    if (ABS_PATH_ALLOWLIST.has(f)) continue;
+
     const ext = f.slice(f.lastIndexOf('.'));
     if (!SCANNABLE_EXTENSIONS.has(ext)) continue;
 
@@ -156,8 +165,12 @@ function checkChangelogUpdated() {
 // Files allowed to contain direct ssh/scp/rsync calls
 const SSH_ALLOWLIST = new Set(['scripts/safe_ssh.sh']);
 
-// Files allowed to contain 'sudo' (checkers/docs only)
-const SUDO_ALLOWLIST = new Set(['scripts/guardrails-check.mjs', 'security/DENYLIST.md']);
+// Files allowed to contain 'sudo' (checkers/docs/tests only)
+const SUDO_ALLOWLIST = new Set([
+  'scripts/guardrails-check.mjs',
+  'security/DENYLIST.md',
+  'tests/safe_exec.test.mjs',  // tests blocking of sudo
+]);
 
 function checkForbiddenPatterns(files) {
   for (const f of files) {

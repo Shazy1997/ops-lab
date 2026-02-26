@@ -2,3 +2,7 @@ node_modules/
 coverage/
 .env
 *.log
+
+# Approval logs (contain commands + hostnames)
+notes/approvals.log
+notes/approvals/*.log
